@@ -27,6 +27,15 @@ data "terraform_remote_state" "lambda_getObject" {
     region = "eu-central-1"
   }
 }
+data "terraform_remote_state" "lambda_insertObject" {
+  backend = "s3"
+
+  config = {
+    bucket = "terraform-statemanager-store-123812902"
+    key = "live/prodyna-aws-training/prod/services/backend/insertObject/terraform.tfstate"
+    region = "eu-central-1"
+  }
+}
 
 resource "aws_api_gateway_rest_api" "this" {
   name = local.name
@@ -45,6 +54,12 @@ resource "aws_api_gateway_method" "get" {
   http_method = "GET"
   authorization = "NONE"
 }
+resource "aws_api_gateway_method" "post" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.order.id
+  http_method = "POST"
+  authorization = "NONE"
+}
 
 resource "aws_api_gateway_integration" "get_objects" {
   rest_api_id = aws_api_gateway_rest_api.this.id
@@ -55,20 +70,40 @@ resource "aws_api_gateway_integration" "get_objects" {
   type = "AWS_PROXY"
   uri = data.terraform_remote_state.lambda_getObject.outputs.lambda_getObject.invoke_arn
 }
+resource "aws_api_gateway_integration" "insert_object" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_method.post.resource_id
+  http_method = aws_api_gateway_method.post.http_method
+
+  integration_http_method = "POST"
+  type = "AWS_PROXY"
+  uri = data.terraform_remote_state.lambda_insertObject.outputs.lambda_insertObject.invoke_arn
+}
 
 resource "aws_api_gateway_deployment" "this" {
   depends_on = [
     aws_api_gateway_integration.get_objects,
+    aws_api_gateway_integration.insert_object,
   ]
 
   rest_api_id = aws_api_gateway_rest_api.this.id
   stage_name = "prod"
 }
 
-resource "aws_lambda_permission" "apigw" {
+resource "aws_lambda_permission" "apigw_get" {
   statement_id = "AllowAPIGatewayInvoke"
   action = "lambda:InvokeFunction"
   function_name = data.terraform_remote_state.lambda_getObject.outputs.lambda_getObject.function_name
+  principal = "apigateway.amazonaws.com"
+
+  # The "/*/*" portion grants access from any method on any resource
+  # within the API Gateway REST API.
+  source_arn = "${aws_api_gateway_rest_api.this.execution_arn}/*/*"
+}
+resource "aws_lambda_permission" "apigw_insert" {
+  statement_id = "AllowAPIGatewayInvoke"
+  action = "lambda:InvokeFunction"
+  function_name = data.terraform_remote_state.lambda_insertObject.outputs.lambda_insertObject.function_name
   principal = "apigateway.amazonaws.com"
 
   # The "/*/*" portion grants access from any method on any resource

@@ -33,7 +33,7 @@
   </style>
   <script type="text/javascript">
     function getData() {
-      var apiUrl = 'https://ehrtiyvu8d.execute-api.eu-central-1.amazonaws.com/prod/order';
+      var apiUrl = 'https://v20sk5ieg7.execute-api.eu-central-1.amazonaws.com/prod/order';
       fetch(apiUrl).then(response => {
         return response.json();
       }).then(data => {
@@ -46,9 +46,29 @@
       });
     }
 
+    function insertData(name){
+      var apiUrl = 'https://v20sk5ieg7.execute-api.eu-central-1.amazonaws.com/prod/order';
+      fetch(apiUrl, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "name": name
+        })
+      }).then(response => {
+        return response.json();
+      }).then(data => {
+        console.log(data);
+      }).catch(err => {
+        // Do something for an error here
+      });
+    }
+
     function appendData(data) {
       console.log('Process data...');
       var mainContainer = document.getElementById('db_data');
+      mainContainer.innerHTML = "";
       console.log('length: '+data.length);
       for (var i = 0; i < data.length; i++) {
         console.log(data[i]);
@@ -67,7 +87,7 @@
   <p class="price">$19.99</p>
   <p>Some text about the jeans..</p>
   <p>
-    <button>Add to Cart</button>
+    <button onclick='insertData("jeans")'>Add to Cart</button>
   </p>
 </div>
 <hr />

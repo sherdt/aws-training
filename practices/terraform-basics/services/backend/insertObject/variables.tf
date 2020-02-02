@@ -7,8 +7,23 @@ variable "aws_credentials" {
   description = "AWS credentials used for terraform."
 }
 
+variable "db_credentials" {
+  type = object({
+    user = string
+    pw = string
+  })
+
+  description = "Database credntials."
+}
+
 locals {
   stageName = "prod"
   projectName = "prodyna-aws-training"
-  name = "s3-frontend"
+  name = "${local.stageName}-${local.projectName}-${terraform.workspace}-backend-insert-object"
+  lambdaName = "insertObject"
+  default_tags = {
+    StageName   = local.stageName
+    ProjectName = local.projectName
+    Name        = "${local.name}-${local.stageName}-${terraform.workspace}"
+  }
 }
