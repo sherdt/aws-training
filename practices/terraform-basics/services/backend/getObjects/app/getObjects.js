@@ -21,12 +21,20 @@ exports.handler = async (event, context) => {
     const tableStructure = await createDatabaseTableStructure(dbConfig);
     return {
       statusCode: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": '*',
+      },
       body: JSON.stringify(tableStructure)
     };
   } catch (e) {
     console.error(e);
     return {
       statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": '*',
+      },
       body: e.message
     }
   }

@@ -1,9 +1,79 @@
 <!DOCTYPE html>
 <html lang='en'>
-  <body>
+<head>
+  <style>
+    .card {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      max-width: 300px;
+      margin: auto;
+      text-align: center;
+      font-family: arial;
+    }
 
-    <h1>index.html</h1>
-    <p>My first paragraph.</p>
+    .price {
+      color: grey;
+      font-size: 22px;
+    }
 
-  </body>
+    .card button {
+      border: none;
+      outline: 0;
+      padding: 12px;
+      color: white;
+      background-color: #000;
+      text-align: center;
+      cursor: pointer;
+      width: 100%;
+      font-size: 18px;
+    }
+
+    .card button:hover {
+      opacity: 0.7;
+    }
+  </style>
+  <script type="text/javascript">
+    function getData() {
+      var apiUrl = 'https://ehrtiyvu8d.execute-api.eu-central-1.amazonaws.com/prod/order';
+      fetch(apiUrl).then(response => {
+        return response.json();
+      }).then(data => {
+        console.log(data);
+        if (data) {
+          appendData(data);
+        }
+      }).catch(err => {
+        // Do something for an error here
+      });
+    }
+
+    function appendData(data) {
+      console.log('Process data...');
+      var mainContainer = document.getElementById('db_data');
+      console.log('length: '+data.length);
+      for (var i = 0; i < data.length; i++) {
+        console.log(data[i]);
+        var div = document.createElement('div');
+        div.innerHTML = 'Name: ' + data[i].name;
+        mainContainer.appendChild(div);
+      }
+    }
+  </script>
+</head>
+<body>
+
+<div class="card">
+  <img src="jeans3.jpg" alt="Denim Jeans" style="width:100%">
+  <h1>Tailored Jeans</h1>
+  <p class="price">$19.99</p>
+  <p>Some text about the jeans..</p>
+  <p>
+    <button>Add to Cart</button>
+  </p>
+</div>
+<hr />
+<button onclick='getData()'>Get data</button>
+<div id='db_data'>
+</div>
+
+</body>
 </html>
