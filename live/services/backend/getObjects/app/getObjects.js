@@ -1,8 +1,7 @@
-const { createDatabaseTableStructure } = require('./services/sqlService');
+const { getAllObjects } = require('./services/sqlService');
 
 exports.handler = async (event, context) => {
   try {
-
     const DB_HOST = process.env['DB_HOST'];
     const DB_PORT = process.env['DB_PORT'];
     const DB = process.env['DB'];
@@ -18,14 +17,15 @@ exports.handler = async (event, context) => {
     };
 
     console.log('Get objects...');
-    const tableStructure = await createDatabaseTableStructure(dbConfig);
+    const result = await getAllObjects(dbConfig);
+
     return {
       statusCode: 200,
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": '*',
       },
-      body: JSON.stringify(tableStructure)
+      body: JSON.stringify(result)
     };
   } catch (e) {
     console.error(e);
