@@ -20,7 +20,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source = "../../../../modules/mgmt/standardVPC"
+  source = "github.com/DennisCreutz/prodyna-aws-training/modules/mgmt/standardVPC"
 
   stage_name     = local.stageName
   project_name   = local.projectName
