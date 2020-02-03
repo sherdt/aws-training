@@ -33,7 +33,6 @@
   </style>
   <script type="text/javascript">
     function getData() {
-      //var apiUrl = 'https://v20sk5ieg7.execute-api.eu-central-1.amazonaws.com/prod/order';
       var apiUrl = document.getElementById('endpoint').value;
       fetch(apiUrl).then(response => {
         return response.json();
@@ -43,26 +42,27 @@
           appendData(data);
         }
       }).catch(err => {
-        // Do something for an error here
+        console.error(err)
       });
     }
 
-    function insertData(name){
+    function insertData(name, price){
       var apiUrl = document.getElementById('endpoint').value;
       fetch(apiUrl, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          "name": name
+          "name": name,
+          "price": price
         })
       }).then(response => {
         return response.json();
       }).then(data => {
         console.log(data);
       }).catch(err => {
-        // Do something for an error here
+        console.error(err)
       });
     }
 
@@ -74,7 +74,7 @@
       for (var i = 0; i < data.length; i++) {
         console.log(data[i]);
         var div = document.createElement('div');
-        div.innerHTML = 'Name: ' + data[i].name;
+        div.innerHTML = 'Order: ' + data[i].name;
         mainContainer.appendChild(div);
       }
     }
@@ -87,12 +87,12 @@
          minlength="4" size="120">
 </div>
 <div class="card">
-  <img src="jeans3.jpg" alt="Denim Jeans" style="width:100%">
+  <img src="media/jeans.jpg" alt="Denim Jeans" style="width:100%">
   <h1>Tailored Jeans</h1>
   <p class="price">$19.99</p>
   <p>Some text about the jeans..</p>
   <p>
-    <button onclick='insertData("jeans")'>Add to Cart</button>
+    <button onclick='insertData("jeans", "$19.99")'>Add to Cart</button>
   </p>
 </div>
 <hr />
