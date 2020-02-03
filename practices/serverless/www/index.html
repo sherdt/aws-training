@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <style>
+    .card {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      max-width: 300px;
+      margin: auto;
+      text-align: center;
+      font-family: arial;
+    }
+
+    .price {
+      color: grey;
+      font-size: 22px;
+    }
+
+    .card button {
+      border: none;
+      outline: 0;
+      padding: 12px;
+      color: white;
+      background-color: #000;
+      text-align: center;
+      cursor: pointer;
+      width: 100%;
+      font-size: 18px;
+    }
+
+    .card button:hover {
+      opacity: 0.7;
+    }
+  </style>
+  <script type="text/javascript">
+    function getData() {
+      var apiUrl = document.getElementById('endpoint').value;
+      fetch(apiUrl).then(response => {
+        return response.json();
+      }).then(data => {
+        console.log(data);
+        if (data) {
+          appendData(data);
+        }
+      }).catch(err => {
+        console.error(err)
+      });
+    }
+
+    function insertData(name, price){
+      var apiUrl = document.getElementById('endpoint').value;
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "name": name,
+          "price": price
+        })
+      }).then(response => {
+        return response.json();
+      }).then(data => {
+        console.log(data);
+      }).catch(err => {
+        console.error(err)
+      });
+    }
+
+    function appendData(data) {
+      console.log('Process data...');
+      var mainContainer = document.getElementById('db_data');
+      mainContainer.innerHTML = "";
+      console.log('length: '+data.length);
+      for (var i = 0; i < data.length; i++) {
+        console.log(data[i]);
+        var div = document.createElement('div');
+        div.innerHTML = 'Order: ' + data[i].name;
+        mainContainer.appendChild(div);
+      }
+    }
+  </script>
+</head>
+<body>
+<div style='width: 100%; margin: 20px'>
+  <label for="endpoint">Endpoint URL:</label>
+  <input type="text" id="endpoint" name="endpoint" required
+         minlength="4" size="120">
+</div>
+<div class="card">
+  <img src="media/jeans.jpg" alt="Denim Jeans" style="width:100%">
+  <h1>Tailored Jeans</h1>
+  <p class="price">$19.99</p>
+  <p>Some text about the jeans..</p>
+  <p>
+    <button onclick='insertData("jeans", "$19.99")'>Add to Cart</button>
+  </p>
+</div>
+<hr />
+<button onclick='getData()'>Get data</button>
+<div id='db_data'>
+</div>
+
+</body>
+</html>
