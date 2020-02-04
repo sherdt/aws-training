@@ -12,7 +12,22 @@ Add
 - Don't forget to export the resources in the output!
 */
 
+provider "aws" {
+  region     = "eu-central-1"
+  access_key = var.aws_credentials.access_key # TODO
+  secret_key = var.aws_credentials.secret_key # TODO
+}
+
 # Datasource to get availability zones needed for the subnets
 data "aws_availability_zones" "available" {
   state = "available"
 }
+
+resource "aws_vpc" "this" {}
+resource "aws_internet_gateway" "this" {}
+
+resource "aws_subnet" "public_subnet" {}
+resource "aws_subnet" "private_subnet" {}
+
+resource "aws_route_table" "public" {}
+resource "aws_route_table_association" "public_subnet" {}

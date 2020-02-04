@@ -20,6 +20,8 @@ resource "aws_db_instance" "this" {
   # TODO
 }
 
+# TODO you need anything else?
+
 /*
   TODO: You need to define outputs
 */

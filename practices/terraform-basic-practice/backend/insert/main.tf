@@ -1,3 +1,9 @@
+provider "aws" {
+  region     = "eu-central-1"
+  access_key = var.aws_credentials.access_key # TODO
+  secret_key = var.aws_credentials.secret_key # TODO
+}
+
 /*
   This creates a role for the lambda function.
   Then we can add the logging and eni policy to the role and add the role to the lambda function.
