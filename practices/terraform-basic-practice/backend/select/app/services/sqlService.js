@@ -10,10 +10,13 @@ const getCreateTableQuery = tableName =>
 
 
 const prepareDatabase = async (query, dbConfig) => {
+  const DB = process.env['DB'];
+
   let result;
 
   console.log(`Create database ${dbConfig.database} if not exists`);
-  result = await query('CREATE DATABASE IF NOT EXISTS ??', dbConfig.database);
+  result = await query('CREATE DATABASE IF NOT EXISTS ??', DB);
+  await query('USE ??', DB);
   console.log(result);
 
   result = await query(getAllTableNamesInDatabase(dbConfig.database));
