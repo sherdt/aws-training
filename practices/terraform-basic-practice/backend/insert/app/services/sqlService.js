@@ -42,7 +42,7 @@ exports.insertObject = async (dbConfig, name, price) => {
     result = await prepareDatabase(query, dbConfig);
 
     console.log(`Insert object with name ${name} and price ${price}`);
-    result = query('INSERT INTO ' + TABLE_NAME + ' VALUES("' + name + ', ' + price + '")');
+    result = query('INSERT INTO ' + TABLE_NAME + ' VALUES("' + name + '", "' + price + '")');
 
   } finally {
     const conEnd = util.promisify(connection.end).bind(connection);
