@@ -18,7 +18,7 @@ const prepareDatabase = async (query, dbConfig) => {
   await query('USE ??', DB);
   console.log(result);
 
-  result = await query(getAllTableNamesInDatabase(dbConfig.database));
+  result = await query(getAllTableNamesInDatabase(DB));
   console.log('Tables before changes: ');
   console.log(result);
 
@@ -26,7 +26,7 @@ const prepareDatabase = async (query, dbConfig) => {
   result = await query(getCreateTableQuery(TABLE_NAME));
   console.log(result);
 
-  result = await query(getAllTableNamesInDatabase(dbConfig.database));
+  result = await query(getAllTableNamesInDatabase(DB));
   console.log('Tables after changes: ');
   console.log(result);
 
