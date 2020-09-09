@@ -15,6 +15,7 @@ resource "aws_eks_cluster" "this" {
   This config map joins the worker nodes.
 
   TODO: Add every IAM user in your team to this config map. E.g.:
+  mapUsers: |
     - userarn: arn:aws:iam::11122223333:user/example-user
       username: example-user
       groups:
