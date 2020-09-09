@@ -16,6 +16,10 @@ const prepareDatabase = async (query, dbConfig) => {
   result = await query('CREATE DATABASE IF NOT EXISTS ??', dbConfig.database);
   console.log(result);
 
+  console.log(`Use database ${dbConfig.database}.`);
+  result = await query('USE ??', dbConfig.database);
+  console.log(result);
+
   result = await query(getAllTableNamesInDatabase(dbConfig.database));
   console.log('Tables before changes: ');
   console.log(result);
@@ -34,7 +38,13 @@ const prepareDatabase = async (query, dbConfig) => {
 exports.getAllObjects = async (dbConfig) => {
   let result = null;
 
-  const connection = mysql.createConnection(dbConfig);
+  const conConfig = {
+    host: dbConfig.host,
+    port: dbConfig.port,
+    user: dbConfig.user,
+    password: dbConfig.password,
+  }
+  const connection = mysql.createConnection(conConfig);
   try {
     const query = util.promisify(connection.query).bind(connection);
     result = await prepareDatabase(query, dbConfig);
