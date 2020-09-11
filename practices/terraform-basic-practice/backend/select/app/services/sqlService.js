@@ -14,7 +14,7 @@ const prepareDatabase = async (query, dbConfig) => {
 
   let result;
 
-  console.log(`Create database ${dbConfig.database} if not exists`);
+  console.log(`Create database ${DB} if not exists`);
   result = await query('CREATE DATABASE IF NOT EXISTS ??', DB);
   await query('USE ??', DB);
   console.log(result);
