@@ -1,5 +1,5 @@
 # With multiple node groups the cluster autoscaler can choose between multiple instance types and choose the best match.
-# TODO
+# TODO Create 2 node groups with 1/3/1 (min/max/des) "t3.small" and 0/1/0 "t3.medium" instances
 resource "aws_eks_node_group" "node_group" {
   count = length(var.node_groups)
 
