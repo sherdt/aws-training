@@ -1,7 +1,8 @@
+# TODO
 provider "aws" {
-  region     = "eu-central-1"
-  access_key = var.aws_credentials.access_key
-  secret_key = var.aws_credentials.secret_key
+  shared_credentials_file = ""
+  profile                 = ""
+  region                  = "eu-central-1"
 }
 
 data "terraform_remote_state" "lambda_getObject" {

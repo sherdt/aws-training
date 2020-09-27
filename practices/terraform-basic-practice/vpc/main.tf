@@ -12,10 +12,11 @@ Add
 - Don't forget to export the resources in the output!
 */
 
+# TODO
 provider "aws" {
-  region     = "eu-central-1"
-  access_key = var.aws_credentials.access_key # TODO
-  secret_key = var.aws_credentials.secret_key # TODO
+  shared_credentials_file = ""
+  profile                 = ""
+  region                  = "eu-central-1"
 }
 
 # Datasource to get availability zones needed for the subnets

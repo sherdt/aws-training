@@ -1,7 +1,8 @@
+# TODO
 provider "aws" {
-  region     = "eu-central-1"
-  access_key = var.aws_credentials.access_key # TODO
-  secret_key = var.aws_credentials.secret_key # TODO
+  shared_credentials_file = ""
+  profile                 = ""
+  region                  = "eu-central-1"
 }
 
 resource "aws_s3_bucket" "frontend" {}
