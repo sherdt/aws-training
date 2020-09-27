@@ -6,21 +6,20 @@ const TABLE_NAME = 'orders';
 const getAllTableNamesInDatabase = databaseName =>
  'SELECT table_name FROM information_schema.tables WHERE table_schema = "' + databaseName + '"';
 const getCreateTableQuery = tableName =>
- 'CREATE TABLE IF NOT EXISTS ' + tableName + ' (name VARCHAR(255))';
+ 'CREATE TABLE IF NOT EXISTS ' + tableName + ' (name VARCHAR(255), price VARCHAR(255))';
 
 
 const prepareDatabase = async (query, dbConfig) => {
+  const DB = process.env['DB'];
+
   let result;
 
-  console.log(`Create database ${dbConfig.database} if not exists`);
-  result = await query('CREATE DATABASE IF NOT EXISTS ??', dbConfig.database);
+  console.log(`Create database ${DB} if not exists`);
+  result = await query('CREATE DATABASE IF NOT EXISTS ??', DB);
+  await query('USE ??', DB);
   console.log(result);
 
-  console.log(`Use database ${dbConfig.database}.`);
-  result = await query('USE ??', dbConfig.database);
-  console.log(result);
-
-  result = await query(getAllTableNamesInDatabase(dbConfig.database));
+  result = await query(getAllTableNamesInDatabase(DB));
   console.log('Tables before changes: ');
   console.log(result);
 
@@ -28,7 +27,7 @@ const prepareDatabase = async (query, dbConfig) => {
   result = await query(getCreateTableQuery(TABLE_NAME));
   console.log(result);
 
-  result = await query(getAllTableNamesInDatabase(dbConfig.database));
+  result = await query(getAllTableNamesInDatabase(DB));
   console.log('Tables after changes: ');
   console.log(result);
 
@@ -38,13 +37,7 @@ const prepareDatabase = async (query, dbConfig) => {
 exports.getAllObjects = async (dbConfig) => {
   let result = null;
 
-  const conConfig = {
-    host: dbConfig.host,
-    port: dbConfig.port,
-    user: dbConfig.user,
-    password: dbConfig.password,
-  }
-  const connection = mysql.createConnection(conConfig);
+  const connection = mysql.createConnection(dbConfig);
   try {
     const query = util.promisify(connection.query).bind(connection);
     result = await prepareDatabase(query, dbConfig);
