@@ -6,7 +6,7 @@ const TABLE_NAME = 'orders';
 const getAllTableNamesInDatabase = databaseName =>
  'SELECT table_name FROM information_schema.tables WHERE table_schema = "' + databaseName + '"';
 const getCreateTableQuery = tableName =>
- 'CREATE TABLE IF NOT EXISTS ' + tableName + ' (name VARCHAR(255))';
+ 'CREATE TABLE IF NOT EXISTS ' + tableName + ' (name VARCHAR(255), price VARCHAR(255))';
 
 
 const prepareDatabase = async (query, dbConfig) => {
