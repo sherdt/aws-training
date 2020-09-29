@@ -1,15 +1,16 @@
-# TODO
 provider "aws" {
-  shared_credentials_file = ""
-  profile                 = ""
-  region                  = "eu-central-1"
+  shared_credentials_file = "../aws-credentials"
+  profile = "aws-training"
+  region = "eu-central-1"
+
+  version = "~> 3.8.0"
 }
 
 data "terraform_remote_state" "lambda_getObject" {
   backend = "local"
 
   config = {
-    path = "${path.module}/path/to/lambda/state/terraform.tfstate" # TODO
+    path = "${path.module}/../backend/select/terraform.tfstate"
   }
 }
 
@@ -17,7 +18,7 @@ data "terraform_remote_state" "lambda_insertObject" {
   backend = "local"
 
   config = {
-    path = "${path.module}/path/to/lambda/state/terraform.tfstate" # TODO
+    path = "${path.module}/../backend/insert/terraform.tfstate"
   }
 }
 
@@ -56,16 +57,17 @@ resource "aws_api_gateway_integration" "get_objects" {
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = data.terraform_remote_state.lambda_getObject.outputs.lambda_getObject.invoke_arn
+  uri                     = data.terraform_remote_state.lambda_getObject.outputs.invoke_arn
 }
 resource "aws_api_gateway_integration" "insert_object" {
   rest_api_id = aws_api_gateway_rest_api.this.id
   resource_id = aws_api_gateway_method.post.resource_id
   http_method = aws_api_gateway_method.post.http_method
 
+
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = data.terraform_remote_state.lambda_insertObject.outputs.lambda_insertObject.invoke_arn
+  uri                     = data.terraform_remote_state.lambda_insertObject.outputs.invoke_arn
 }
 
 resource "aws_api_gateway_method_response" "response_method_get" {
@@ -127,7 +129,7 @@ resource "aws_api_gateway_deployment" "this" {
 resource "aws_lambda_permission" "apigw_get" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = data.terraform_remote_state.lambda_getObject.outputs.lambda_getObject.function_name
+  function_name = data.terraform_remote_state.lambda_getObject.outputs.function_name
   principal     = "apigateway.amazonaws.com"
 
   # The "/*/*" portion grants access from any method on any resource
@@ -137,7 +139,7 @@ resource "aws_lambda_permission" "apigw_get" {
 resource "aws_lambda_permission" "apigw_insert" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = data.terraform_remote_state.lambda_insertObject.outputs.lambda_insertObject.function_name
+  function_name = data.terraform_remote_state.lambda_insertObject.outputs.function_name
   principal     = "apigateway.amazonaws.com"
 
   # The "/*/*" portion grants access from any method on any resource
