@@ -2,10 +2,9 @@ variable "team" {
   default = "ahs"
 }
 
-
 locals {
-  name = "ahs-lambda"
+  name = "${var.team}-lambda"
   default_tags = {
-    team = "ahs"
+    team = var.team
   }
 }
