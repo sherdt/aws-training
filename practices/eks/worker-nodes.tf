@@ -1,9 +1,9 @@
 # With multiple node groups the cluster autoscaler can choose between multiple instance types and choose the best match.
-# TODO Create 2 node groups with 1/3/1 (min/max/des) "t3.small" and 0/1/0 "t3.medium" instances
+# TODO Create 1 node groups with 1/3/1 (min/max/des) "t3.small"
 resource "aws_eks_node_group" "node_group" {
   count = length(var.node_groups)
 
-  cluster_name = aws_eks_cluster.self.name
+  cluster_name = aws_eks_cluster.eks.name
 
   disk_size = var.node_groups[count.index].disk_size
 
@@ -24,11 +24,20 @@ resource "aws_eks_node_group" "node_group" {
     # The cluster autoscaler (in Kubernetes) will change this value. We need to ignore this changes on apply.
     ignore_changes = [scaling_config[0].desired_size]
   }
+
+  node_group_name = "ahs-node-group"
+  node_role_arn = aws_iam_role.eks_nodes.arn
+  subnet_ids = data.terraform_remote_state.vpc.outputs.aws_private_subnets_ids
+  scaling_config {
+    max_size      = var.node_groups[count.index].max_size
+    min_size      = var.node_groups[count.index].min_size
+    desired_size  = var.node_groups[count.index].initial_size
+  }
 }
 
 # Role and policies needed for the worker nodes
 resource "aws_iam_role" "eks_nodes" {
-  name               = "${var.cluster_name}-worker"
+  name               = "${aws_eks_cluster.eks.name}-worker"
   assume_role_policy = data.aws_iam_policy_document.assume_workers.json
 }
 data "aws_iam_policy_document" "assume_workers" {

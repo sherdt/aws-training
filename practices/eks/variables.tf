@@ -1,6 +1,7 @@
 variable "stage" {
   type = string
 }
+
 variable "node_groups" {
   type = list(object({
     max_size      = number
@@ -11,16 +12,6 @@ variable "node_groups" {
   }))
 
   description = "List of node group configurations."
-}
-
-variable "vpc_remote_key" {
-  description = "The key to the VPC remote Terraform state."
-  type        = string
-}
-
-variable "cluster_name" {
-  description = "Name of the EKS cluster."
-  type        = string
 }
 
 locals {
