@@ -7,7 +7,6 @@ terraform {
 
   backend "s3" {
     bucket = "ahs-terraform-states"
-    key = "ahs/prod/be-select/terraform.tfstate"
     region = "eu-central-1"
     dynamodb_table = "ahs-terraform-state-lock-table"
     encrypt = true
@@ -28,7 +27,7 @@ data "terraform_remote_state" "common" {
 
   config = {
     bucket = "ahs-terraform-states"
-    key    = "ahs/prod/common/terraform.tfstate"
+    key    = "ahs/${var.stage}/common/terraform.tfstate"
     region = "eu-central-1"
     shared_credentials_file = "../../aws-credentials"
     profile = "aws-training"
@@ -40,7 +39,7 @@ data "terraform_remote_state" "vpc" {
 
   config = {
     bucket = "ahs-terraform-states"
-    key    = "ahs/prod/vpc/terraform.tfstate"
+    key    = "ahs/${var.stage}/vpc/terraform.tfstate"
     region = "eu-central-1"
     shared_credentials_file = "../../aws-credentials"
     profile = "aws-training"
@@ -52,7 +51,7 @@ data "terraform_remote_state" "database" {
 
   config = {
     bucket = "ahs-terraform-states"
-    key    = "ahs/prod/database/terraform.tfstate"
+    key    = "ahs/${var.stage}/database/terraform.tfstate"
     region = "eu-central-1"
     shared_credentials_file = "../../aws-credentials"
     profile = "aws-training"
@@ -78,7 +77,7 @@ resource "aws_iam_role_policy_attachment" "lambda_eni" {
 
 resource "aws_lambda_function" "get_objects" {
   filename = "${local.lambdaName}.zip"
-  function_name = local.lambdaName
+  function_name = "${var.stage}-${local.lambdaName}"
   role = data.terraform_remote_state.common.outputs.ahs-lambda-iam-role.arn
   handler = "${local.lambdaName}.handler"
   source_code_hash = data.archive_file.lambda_app.output_base64sha256

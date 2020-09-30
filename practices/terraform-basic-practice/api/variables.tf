@@ -1,4 +1,8 @@
+variable "stage" {
+  type = string
+  description = "Environment/stage ..."
+}
+
 locals {
   team = "ahs"
-  name = "ahs-shop"
 }

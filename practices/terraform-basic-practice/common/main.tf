@@ -7,7 +7,6 @@ terraform {
 
   backend "s3" {
     bucket = "ahs-terraform-states"
-    key = "ahs/prod/common/terraform.tfstate"
     region = "eu-central-1"
     dynamodb_table = "ahs-terraform-state-lock-table"
     encrypt = true
@@ -28,7 +27,7 @@ data "terraform_remote_state" "vpc" {
 
   config = {
     bucket = "ahs-terraform-states"
-    key    = "ahs/prod/vpc/terraform.tfstate"
+    key    = "ahs/${var.stage}/vpc/terraform.tfstate"
     region = "eu-central-1"
     shared_credentials_file = "../aws-credentials"
     profile = "aws-training"
@@ -37,7 +36,7 @@ data "terraform_remote_state" "vpc" {
 
 # Normaly you create a more restrictive security group
 resource "aws_security_group" "allow_all" {
-  name = "ahs-node-security-group"
+  name = "ahs-${var.stage}-node-security-group"
   vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
 
   ingress {
@@ -63,10 +62,10 @@ resource "aws_security_group" "allow_all" {
 
 resource "aws_security_group" "db-sg" {
   vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
-  name = "db-sg"
+  name = "db-${var.stage}-sg"
 
   tags = {
-    Name = "db-sg"
+    Name = "db-${var.stage}-sg"
     team = var.team
   }
 }
@@ -82,18 +81,17 @@ resource "aws_security_group_rule" "db-sg-rule" {
 
 resource "aws_security_group" "lambda-sg" {
   vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
-  name = "lambda-sg"
+  name = "lambda-${var.stage}-sg"
 
   egress {
     from_port = 3306
     to_port = 3306
     protocol = "tcp"
-    security_groups = [
-      aws_security_group.db-sg.id]
+    security_groups = [aws_security_group.db-sg.id]
   }
 
   tags = {
-    Name = "lambda-sg"
+    Name = "lambda-${var.stage}-sg"
     team = var.team
   }
 }
@@ -104,7 +102,7 @@ resource "aws_security_group" "lambda-sg" {
   Then we can add the logging and eni policy to the role and add the role to the lambda function.
 */
 resource "aws_iam_role" "iam-role" {
-  name = "${local.name}-iam-role"
+  name = "${local.name}-${var.stage}-iam-role"
 
   assume_role_policy = <<EOF
 {
@@ -125,7 +123,7 @@ EOF
 }
 
 resource "aws_iam_policy" "lambda_logging" {
-  name = "${local.name}-logging-policy"
+  name = "${local.name}-${var.stage}-logging-policy"
   path = "/"
   description = "IAM policy for logging from a lambda"
 
@@ -149,7 +147,7 @@ EOF
 
 # This policy is needed because we need to create the lambdas in our VP
 resource "aws_iam_policy" "lambda_eni" {
-  name = "${local.name}-eni-policy"
+  name = "${local.name}-${var.stage}-eni-policy"
   path = "/"
   description = "IAM policy for creating ENI's from a lambda"
 

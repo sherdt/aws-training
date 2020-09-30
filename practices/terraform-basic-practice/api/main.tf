@@ -7,7 +7,6 @@ terraform {
 
   backend "s3" {
     bucket = "ahs-terraform-states"
-    key = "ahs/prod/api/terraform.tfstate"
     region = "eu-central-1"
     dynamodb_table = "ahs-terraform-state-lock-table"
     encrypt = true
@@ -28,7 +27,7 @@ data "terraform_remote_state" "lambda_getObject" {
 
   config = {
     bucket = "ahs-terraform-states"
-    key    = "ahs/prod/be-select/terraform.tfstate"
+    key    = "ahs/${var.stage}/be-select/terraform.tfstate"
     region = "eu-central-1"
     shared_credentials_file = "../aws-credentials"
     profile = "aws-training"
@@ -40,7 +39,7 @@ data "terraform_remote_state" "lambda_insertObject" {
 
   config = {
     bucket = "ahs-terraform-states"
-    key    = "ahs/prod/be-insert/terraform.tfstate"
+    key    = "ahs/${var.stage}/be-insert/terraform.tfstate"
     region = "eu-central-1"
     shared_credentials_file = "../aws-credentials"
     profile = "aws-training"
@@ -49,7 +48,7 @@ data "terraform_remote_state" "lambda_insertObject" {
 
 # The API
 resource "aws_api_gateway_rest_api" "this" {
-  name        = local.name
+  name        = "ahs-${var.stage}-shop"
   description = "Example API for the PRODYNA AWS training."
 }
 
@@ -88,7 +87,6 @@ resource "aws_api_gateway_integration" "insert_object" {
   rest_api_id = aws_api_gateway_rest_api.this.id
   resource_id = aws_api_gateway_method.post.resource_id
   http_method = aws_api_gateway_method.post.http_method
-
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
@@ -145,7 +143,7 @@ resource "aws_api_gateway_deployment" "this" {
   ]
 
   rest_api_id = aws_api_gateway_rest_api.this.id
-  stage_name  = "prod"
+  stage_name  = var.stage
 }
 
 /*

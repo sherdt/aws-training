@@ -7,7 +7,6 @@ terraform {
 
   backend "s3" {
     bucket = "ahs-terraform-states"
-    key = "ahs/prod/frontend/terraform.tfstate"
     region = "eu-central-1"
     dynamodb_table = "ahs-terraform-state-lock-table"
     encrypt = true
@@ -28,13 +27,19 @@ provider "aws" {
 
 resource "aws_s3_bucket" "frontend" {
 
-  bucket = "ahs-shop"
+  bucket = "ahs-${var.stage}-shop"
   acl    = "public-read"
-  policy = file("policy.json")
+  policy = templatefile("policy.json", {
+    stage = var.stage
+  })
 
   website {
     index_document = "index.html"
     error_document = "error.html"
+  }
+
+  tags = {
+    team = var.team
   }
 }
 

@@ -7,7 +7,6 @@ terraform {
 
   backend "s3" {
     bucket = "ahs-terraform-states"
-    key = "ahs/prod/vpc/terraform.tfstate"
     region = "eu-central-1"
     dynamodb_table = "ahs-terraform-state-lock-table"
     encrypt = true
@@ -33,7 +32,7 @@ resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/20"
 
   tags = {
-    "Name" : "${var.team}-vpc"
+    "Name" : "${var.team}-${var.stage}-vpc"
     "team" : var.team
   }
 }
@@ -42,7 +41,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 
   tags = {
-    Name = "igw"
+    Name = "${var.stage}-igw"
     "team" : var.team
   }
 }
@@ -55,7 +54,7 @@ resource "aws_subnet" "public_subnet" {
   availability_zone = data.aws_availability_zones.available.names[count.index % length(data.aws_availability_zones.available.names)]
 
   tags = {
-    Name = "public-${count.index}"
+    Name = "${var.stage}-public-${count.index}"
     "team" : var.team
   }
 }
@@ -68,7 +67,7 @@ resource "aws_subnet" "private_subnet" {
   availability_zone = data.aws_availability_zones.available.names[count.index % length(data.aws_availability_zones.available.names)]
 
   tags = {
-    Name = "private-${count.index}"
+    Name = "${var.stage}-private-${count.index}"
     "team" : var.team
   }
 }
@@ -82,7 +81,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "public"
+    Name = "${var.stage}-public"
     "team" : var.team
   }
 }
