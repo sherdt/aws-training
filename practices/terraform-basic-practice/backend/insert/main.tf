@@ -1,9 +1,70 @@
+terraform {
+  required_version = "~> 0.13.0"
+
+  required_providers {
+    aws = "~> 3.8.0"
+  }
+
+  backend "s3" {
+    bucket = "ahs-terraform-states"
+    key = "ahs/prod/be-insert/terraform.tfstate"
+    region = "eu-central-1"
+    dynamodb_table = "ahs-terraform-state-lock-table"
+    encrypt = true
+
+    shared_credentials_file = "../../aws-credentials"
+    profile = "aws-training"
+  }
+}
+
 provider "aws" {
-  shared_credentials_file = "../aws-credentials"
+  shared_credentials_file = "../../aws-credentials"
   profile                 = "aws-training"
   region                  = "eu-central-1"
+}
 
-  version = "~> 3.8.0"
+
+data "terraform_remote_state" "common" {
+  backend = "s3"
+
+  config = {
+    bucket = "ahs-terraform-states"
+    key    = "ahs/prod/common/terraform.tfstate"
+    region = "eu-central-1"
+    shared_credentials_file = "../../aws-credentials"
+    profile = "aws-training"
+  }
+}
+
+data "terraform_remote_state" "vpc" {
+  backend = "s3"
+
+  config = {
+    bucket = "ahs-terraform-states"
+    key    = "ahs/prod/vpc/terraform.tfstate"
+    region = "eu-central-1"
+    shared_credentials_file = "../../aws-credentials"
+    profile = "aws-training"
+  }
+}
+
+data "terraform_remote_state" "database" {
+  backend = "s3"
+
+  config = {
+    bucket = "ahs-terraform-states"
+    key    = "ahs/prod/database/terraform.tfstate"
+    region = "eu-central-1"
+    shared_credentials_file = "../../aws-credentials"
+    profile = "aws-training"
+  }
+}
+
+# Zip's your lambda files. Don't forget to add *.zip to your gitignore.
+data "archive_file" "lambda_app" {
+  type        = "zip"
+  output_path = "${path.module}/${local.lambdaName}.zip"
+  source_dir  = "${path.module}/app"
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
@@ -14,30 +75,6 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 resource "aws_iam_role_policy_attachment" "lambda_eni" {
   role = data.terraform_remote_state.common.outputs.ahs-lambda-iam-role.name
   policy_arn =  data.terraform_remote_state.common.outputs.ahs-lambda-eni-policy-arn
-}
-
-data "terraform_remote_state" "common" {
-  backend = "local"
-
-  config = {
-    path = "${path.module}/../../common/terraform.tfstate"
-  }
-}
-
-data "terraform_remote_state" "vpc" {
-  backend = "local"
-
-  config = {
-    path = "${path.module}/../../vpc/terraform.tfstate"
-  }
-}
-
-data "terraform_remote_state" "database" {
-  backend = "local"
-
-  config = {
-    path = "${path.module}/../../database/terraform.tfstate"
-  }
 }
 
 resource "aws_lambda_function" "insert_object" {
@@ -66,9 +103,3 @@ resource "aws_lambda_function" "insert_object" {
   tags = local.default_tags
 }
 
-# Zip's your lambda files. Don't forget to add *.zip to your gitignore.
-data "archive_file" "lambda_app" {
-  type        = "zip"
-  output_path = "${path.module}/${local.lambdaName}.zip"
-  source_dir  = "${path.module}/app"
-}

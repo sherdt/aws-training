@@ -1,23 +1,27 @@
-/*
-Use this VPC for all resources.
-You can use a terraform_remote_state of type local to reference to the output of this module.
+terraform {
+  required_version = "~> 0.13.0"
 
-TODO:
-Add
-- VPC
-- 3 public subnets
-- 3 private subnets
-- Internet Gateway
-- Route table (table, route, association) for public subnets with a route to the internet gateway
-- Don't forget to export the resources in the output!
-*/
+  required_providers {
+    aws = "~> 3.8.0"
+  }
+
+  backend "s3" {
+    bucket = "ahs-terraform-states"
+    key = "ahs/prod/vpc/terraform.tfstate"
+    region = "eu-central-1"
+    dynamodb_table = "ahs-terraform-state-lock-table"
+    encrypt = true
+
+    shared_credentials_file = "../aws-credentials"
+    profile = "aws-training"
+  }
+
+}
 
 provider "aws" {
   shared_credentials_file = "../aws-credentials"
   profile                 = "aws-training"
   region                  = "eu-central-1"
-
-  version = "~> 3.8.0"
 }
 
 # Datasource to get availability zones needed for the subnets

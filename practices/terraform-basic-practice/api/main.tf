@@ -1,24 +1,49 @@
+terraform {
+  required_version = "~> 0.13.0"
+
+  required_providers {
+    aws = "~> 3.8.0"
+  }
+
+  backend "s3" {
+    bucket = "ahs-terraform-states"
+    key = "ahs/prod/api/terraform.tfstate"
+    region = "eu-central-1"
+    dynamodb_table = "ahs-terraform-state-lock-table"
+    encrypt = true
+
+    shared_credentials_file = "../aws-credentials"
+    profile = "aws-training"
+  }
+}
+
 provider "aws" {
   shared_credentials_file = "../aws-credentials"
   profile = "aws-training"
   region = "eu-central-1"
-
-  version = "~> 3.8.0"
 }
 
 data "terraform_remote_state" "lambda_getObject" {
-  backend = "local"
+  backend = "s3"
 
   config = {
-    path = "${path.module}/../backend/select/terraform.tfstate"
+    bucket = "ahs-terraform-states"
+    key    = "ahs/prod/be-select/terraform.tfstate"
+    region = "eu-central-1"
+    shared_credentials_file = "../aws-credentials"
+    profile = "aws-training"
   }
 }
 
 data "terraform_remote_state" "lambda_insertObject" {
-  backend = "local"
+  backend = "s3"
 
   config = {
-    path = "${path.module}/../backend/insert/terraform.tfstate"
+    bucket = "ahs-terraform-states"
+    key    = "ahs/prod/be-insert/terraform.tfstate"
+    region = "eu-central-1"
+    shared_credentials_file = "../aws-credentials"
+    profile = "aws-training"
   }
 }
 

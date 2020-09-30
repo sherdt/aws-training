@@ -1,3 +1,23 @@
+terraform {
+  required_version = "~> 0.13.0"
+
+  required_providers {
+    aws = "~> 3.8.0"
+  }
+
+  backend "s3" {
+    bucket = "ahs-terraform-states"
+    key = "ahs/prod/frontend/terraform.tfstate"
+    region = "eu-central-1"
+    dynamodb_table = "ahs-terraform-state-lock-table"
+    encrypt = true
+
+    shared_credentials_file = "../aws-credentials"
+    profile = "aws-training"
+  }
+
+}
+
 provider "aws" {
   shared_credentials_file = "../aws-credentials"
   profile = "aws-training"

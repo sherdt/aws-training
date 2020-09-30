@@ -1,0 +1,15 @@
+{
+  "Version": "2012-10-17",
+  "Id": "Policy1601458168985",
+  "Statement": [
+    {
+      "Sid": "Stmt1601458163234",
+      "Effect": "Deny",
+      "NotPrincipal": {
+        "AWS": "arn:aws:iam::716509960670:user/terraform"
+      },
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::ahs-terraform-states/*"
+    }
+  ]
+}
